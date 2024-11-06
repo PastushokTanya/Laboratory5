@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторна робота №5</title>
+    <style>
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+        }
+        .form-container form, .form-container .output {
+            width: 45%;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        .form-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+        }
+        table {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+        #colorPicker {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <form id="dataForm">
+        <h2>Форма для заповнення</h2>
+        <label>ПІБ</label>
+        <input type="text" id="pib" required pattern="[А-ЯІЇЄҐа-яіїєґ]+\s[А-ЯІЇЄҐа-яіїєґ]{1}\.[А-ЯІЇЄҐа-яіїєґ]{1}\.">
+        
+        <label>Телефон</label>
+        <input type="text" id="phone" required pattern="\(\d{3}\)-\d{3}-\d{2}-\d{2}">
+
+        <label>ID-карта</label>
+        <input type="text" id="idCard" required pattern="[А-ЯІЇЄҐа-яіїєґ]{2}\s№\d{6}">
+
+        <label>Факультет</label>
+        <input type="text" id="faculty" required pattern="[А-ЯІЇЄҐа-яіїєґ]+">
+
+        <label>Дата народження</label>
+        <input type="text" id="dob" required pattern="\d{2}\.\d{2}\.\d{4}">
+
+        <button type="submit">Підтвердити</button>
+    </form>
+
+    <div class="output" id="output">
+        <h2>Введені дані</h2>
+        <p id="displayData"></p>
+    </div>
+</div>
+
+<table>
+    <tbody id="tableGrid">
+        <!-- JavaScript заповнить таблицю -->
+    </tbody>
+</table>
+
+<input type="color" id="colorPicker">
+
+<script>
+    const tableGrid = document.getElementById('tableGrid');
+    const colorPicker = document.getElementById('colorPicker');
+
+    // Функція для створення таблиці 6x6
+    function createTable() {
+        let counter = 1;
+        for (let i = 0; i < 6; i++) {
+            const row = document.createElement('tr');
+            for (let j = 0; j < 6; j++) {
+                const cell = document.createElement('td');
+                cell.textContent = counter;
+
+                // Додаємо події для клітинки з числом 18
+                if (counter === 18) {
+                    cell.onmouseover = () => cell.style.backgroundColor = getRandomColor();
+                    cell.onclick = () => {
+                        colorPicker.click();
+                        colorPicker.oninput = () => {
+                            cell.style.backgroundColor = colorPicker.value;
+                        };
+                    };
+                    cell.ondblclick = () => {
+                        colorPicker.click();
+                        colorPicker.oninput = () => {
+                            const selectedColor = colorPicker.value;
+                            changeColumnColors(j, selectedColor);
+                        };
+                    };
+                }
+
+                row.appendChild(cell);
+                counter++;
+            }
+            tableGrid.appendChild(row);
+        }
+    }
+
+    // Функція для зміни кольору обраного стовпця та кожного другого стовпця зліва
+    function changeColumnColors(startCol, color) {
+        const rows = document.querySelectorAll('tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            for (let col = startCol; col >= 0; col -= 2) {
+                cells[col].style.backgroundColor = color;
+            }
+        });
+    }
+
+    // Функція для генерації випадкового кольору
+    function getRandomColor() {
+        return '#' + Math.floor(Math.random() * 16777215).toString(16);
+    }
+
+    // Обробка форми
+    document.getElementById('dataForm').onsubmit = function (e) {
+        e.preventDefault();
+        const pib = document.getElementById('pib').value;
+        const phone = document.getElementById('phone').value;
+        const idCard = document.getElementById('idCard').value;
+        const faculty = document.getElementById('faculty').value;
+        const dob = document.getElementById('dob').value;
+
+        output.innerHTML = `
+            <p><strong>ПІБ:</strong> ${pib}</p>
+            <p><strong>Телефон:</strong> ${phone}</p>
+            <p><strong>ID-карта:</strong> ${idCard}</p>
+            <p><strong>Факультет:</strong> ${faculty}</p>
+            <p><strong>Дата народження:</strong> ${dob}</p>
+        `;
+    };
+
+    // Викликати функцію створення таблиці при завантаженні сторінки
+    createTable();
+</script>
+
+</body>
+</html>
